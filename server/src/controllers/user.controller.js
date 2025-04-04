@@ -108,8 +108,7 @@ const loginUser = asyncHandler(async (req, res) =>{
         httpOnly: true,
         secure: true,
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 24 * 60 * 60 * 1000,
-        domain: process.env.NODE_ENV === 'production' ? 'awesome-pdf-to-xml.onrender.com' : 'localhost'
+        maxAge: 24 * 60 * 60 * 1000
     }
 
     return res
@@ -145,8 +144,7 @@ const logoutUser = asyncHandler(async(req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 24 * 60 * 60 * 1000,
-        domain: process.env.NODE_ENV === 'production' ? 'awesome-pdf-to-xml.onrender.com' : 'localhost'
+        maxAge: 24 * 60 * 60 * 1000
     }
 
     return res
@@ -184,8 +182,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             httpOnly: true,
             secure: true,
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-            maxAge: 24 * 60 * 60 * 1000,
-            domain: process.env.NODE_ENV === 'production' ? 'awesome-pdf-to-xml.onrender.com' : 'localhost'
+            maxAge: 24 * 60 * 60 * 1000
         }
     
         const {accessToken, newRefreshToken} = await generateAccessAndRefereshTokens(user._id)
