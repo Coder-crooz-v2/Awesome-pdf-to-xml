@@ -21,7 +21,7 @@ export const fetchUserDocuments = createAsyncThunk(
   'documents/fetchUserDocuments',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/documents`, {
+      const response = await axiosInstance.get<{ data: Document[] }>(`/documents`, {
         withCredentials: true,
       });
       return response.data.data;
@@ -35,7 +35,7 @@ export const uploadDocument = createAsyncThunk(
   'documents/uploadDocument',
   async (formData: FormData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(`/documents/upload`, formData, {
+      const response = await axiosInstance.post<{ data: Document }>(`/documents/upload`, formData, {
         withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -58,22 +58,6 @@ export const deleteDocument = createAsyncThunk(
       return documentId;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to delete document');
-    }
-  }
-);
-
-export const convertPdfToXml = createAsyncThunk(
-  'documents/convertPdfToXml',
-  async (documentId: string, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.post(
-        `/documents/convert/${documentId}`,
-        {},
-        { withCredentials: true }
-      );
-      return response.data.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to convert document');
     }
   }
 );
@@ -136,21 +120,6 @@ const documentSlice = createSlice({
         state.documents = state.documents.filter((doc) => doc._id !== action.payload);
       })
       .addCase(deleteDocument.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
-
-    // Convert PDF to XML
-    builder
-      .addCase(convertPdfToXml.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(convertPdfToXml.fulfilled, (state, action: PayloadAction<Document>) => {
-        state.loading = false;
-        state.documents.push(action.payload);
-      })
-      .addCase(convertPdfToXml.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

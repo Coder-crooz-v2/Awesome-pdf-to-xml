@@ -231,7 +231,7 @@ const Dashboard = () => {
   const downloadFile = async (file: Document) => {
     try {
       const response = await axios.get(file.url, { responseType: 'blob' });
-      const blob = new Blob([response.data]);
+      const blob = new Blob([response.data as BlobPart]);
       
       // Create download link
       const downloadUrl = URL.createObjectURL(blob);
