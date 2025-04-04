@@ -6,10 +6,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   BarChart, 
   FileText,
-  LayoutDashboard, 
   LogOut, 
-  Menu, 
-  Settings,
+  Menu,
   FileCode
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -28,11 +26,6 @@ interface SidebarProps {
 
 const navItems = [
   {
-    title: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/dashboard",
-  },
-  {
     title: "PDF Files",
     icon: FileText,
     tab: "pdfs",
@@ -46,12 +39,7 @@ const navItems = [
     title: "History",
     icon: BarChart,
     tab: "history",
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    href: "/settings",
-  },
+  }
 ];
 
 const Sidebar = ({ isOpen, toggleSidebar, activeTab, setActiveTab }: SidebarProps) => {
@@ -109,7 +97,7 @@ const Sidebar = ({ isOpen, toggleSidebar, activeTab, setActiveTab }: SidebarProp
       <ScrollArea className="flex-1">
         <div className="space-y-1 p-2">
           {navItems.map((item) => {
-            const isActive = item.tab === activeTab || (item.href === "/dashboard" && !activeTab);
+            const isActive = item.tab === activeTab || !activeTab;
             
             return item.tab ? (
               <Button
@@ -125,7 +113,6 @@ const Sidebar = ({ isOpen, toggleSidebar, activeTab, setActiveTab }: SidebarProp
                 {isOpen && <span>{item.title}</span>}
               </Button>
             ) : (
-              <Link key={item.title} to={item.href || "#"}>
                 <Button
                   variant="ghost"
                   className={cn(
@@ -136,7 +123,6 @@ const Sidebar = ({ isOpen, toggleSidebar, activeTab, setActiveTab }: SidebarProp
                   <item.icon className={cn("h-5 w-5", isOpen ? "mr-2" : "mx-auto")} />
                   {isOpen && <span>{item.title}</span>}
                 </Button>
-              </Link>
             );
           })}
         </div>
