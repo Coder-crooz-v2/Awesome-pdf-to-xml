@@ -109,7 +109,7 @@ const loginUser = asyncHandler(async (req, res) =>{
         secure: true,
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 24 * 60 * 60 * 1000,
-        domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : 'localhost'
+        domain: process.env.NODE_ENV === 'production' ? 'https://awesome-pdf-to-xml.vercel.app' : 'localhost'
     }
 
     return res
