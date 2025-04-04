@@ -2,11 +2,15 @@ import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import path from "path"
+import dotenv from "dotenv"
+dotenv.config({
+  path: './.env'
+})
 
 const app = express()
 
 const allowedOrigins = [
-"https://awesome-pdf-to-xml.vercel.app",          // Production URL
+process.env.CORS_ORIGIN,          // Production URL
 "http://localhost:3000"                              // Local development URL
 ]
 
