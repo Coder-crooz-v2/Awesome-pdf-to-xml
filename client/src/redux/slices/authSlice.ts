@@ -45,7 +45,7 @@ export const registerUser = createAsyncThunk(
         formData.append('avatar', userData.avatar);
       }
 
-      const response = await axiosInstance.post(`/users/register`, formData, {
+      const response = await axiosInstance.post<{data: any}>(`/users/register`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -62,7 +62,7 @@ export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(`/users/login`, credentials, {
+      const response = await axiosInstance.post<{data: any}>(`/users/login`, credentials, {
         withCredentials: true, // Important for storing cookies
       });
       return response.data.data;
@@ -76,7 +76,7 @@ export const logoutUser = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      await axiosInstance.post(`/users/logout`, {}, {
+      await axiosInstance.post<{data: any}>(`/users/logout`, {}, {
         withCredentials: true,
       });
       return null;
@@ -90,7 +90,7 @@ export const getCurrentUser = createAsyncThunk(
   'auth/getCurrentUser',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/users/current-user`, {
+      const response = await axiosInstance.get<{data: any}>(`/users/current-user`, {
         withCredentials: true,
       });
       return response.data.data;
@@ -105,7 +105,7 @@ export const refreshAccessToken = createAsyncThunk(
   'auth/refreshToken',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(`/users/refresh-token`, {}, {
+      const response = await axiosInstance.post<{data: any}>(`/users/refresh-token`, {}, {
         withCredentials: true,
       });
       return response.data.data;
