@@ -1,7 +1,6 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
-import path from "path"
 import dotenv from "dotenv"
 dotenv.config({
   path: './.env'
@@ -34,15 +33,6 @@ app.use(express.json({limit: "16kb"}))
 app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser())
-
-const __dirname = path.resolve();
-if(process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../client/dist')));
-
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, '../client/dist/index.html'));
-    });
-}
 
 //routes import
 import userRouter from './routes/user.routes.js'
