@@ -50,6 +50,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import axios from "axios";
 import FileViewer from "@/components/dashboard/FileViewer";
+import { useNavigate } from "react-router-dom";
 
 declare global {
   interface FileConstructor {
@@ -87,7 +88,8 @@ const Dashboard = () => {
   const [fileToDelete, setFileToDelete] = useState<Document | null>(null);
   
   const dispatch = useDispatch<AppDispatch>();
-  
+  const navigate = useNavigate();
+
   const { documents, loading } = useSelector((state: RootState) => state.documents);
   const { history } = useSelector((state: RootState) => state.user);
   

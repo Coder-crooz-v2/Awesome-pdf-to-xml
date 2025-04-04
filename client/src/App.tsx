@@ -9,6 +9,7 @@ import SignupPage from "./pages/Signup";
 import { ThemeProvider } from "./providers/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import Dashboard from "./pages/Dashboard";
+import ProtectedRoute from "./providers/ProtectedRoute";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,7 +27,9 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Route>
             {/* Add other routes here */}
           </Routes>
         </main>

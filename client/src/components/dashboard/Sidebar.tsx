@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "@/theme/ModeToggle";
+import { toast } from "sonner";
+import { logoutUser } from "@/redux/slices/authSlice";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -54,7 +56,30 @@ const navItems = [
 
 const Sidebar = ({ isOpen, toggleSidebar, activeTab, setActiveTab }: SidebarProps) => {
   const { user } = useSelector((state: RootState) => state.auth);
-  
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleLogout = async () => {
+    try {
+      // Call the logout API
+      await dispatch(logoutUser()).unwrap();
+      
+      // Clear any additional storage if needed
+      localStorage.removeItem("accessToken");
+      
+      toast.success("Logout successful");
+      
+      // Force navigation to login page
+      // Add a small delay to ensure state is updated before navigation
+      setTimeout(() => {
+        navigate("/login", { replace: true });
+      }, 100);
+    } catch (error) {
+      toast.error("Logout failed. Please try again");
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -138,6 +163,7 @@ const Sidebar = ({ isOpen, toggleSidebar, activeTab, setActiveTab }: SidebarProp
         <Button
           variant="ghost"
           className={cn("w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950")}
+          onClick={handleLogout}
         >
           <LogOut className={cn("h-5 w-5", isOpen ? "mr-2" : "mx-auto")} />
           {isOpen && <span>Logout</span>}
