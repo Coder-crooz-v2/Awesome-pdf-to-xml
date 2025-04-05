@@ -199,7 +199,7 @@ const FileViewer = ({ file }: FileViewerProps) => {
               {loading ? (
                 <Skeleton className="h-full w-full" />
               ) : (
-                <Card className="p-4 h-full overflow-auto bg-gray-50 dark:bg-gray-900">
+                <Card className="p-4 h-[540px] overflow-auto bg-gray-50 dark:bg-gray-900">
                   {xmlContent ? (
                     <iframe
                       srcDoc={`

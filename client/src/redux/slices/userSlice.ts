@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import {axiosInstance} from '@/lib/axios';
+import { axiosInstance } from '@/lib/axios';
 
 
 // Types
@@ -31,7 +31,7 @@ export const fetchUserProfile = createAsyncThunk(
   'user/fetchUserProfile',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get<{data: any}>(`/users/current-user`, {
+      const response = await axiosInstance.get<{ data: any }>(`/users/current-user`, {
         withCredentials: true,
       });
       return response.data.data;
@@ -45,7 +45,7 @@ export const updateUserProfile = createAsyncThunk(
   'user/updateUserProfile',
   async (userData: FormData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.patch<{data: any}>(`/users/update-account`, userData, {
+      const response = await axiosInstance.patch<{ data: any }>(`/users/update-account`, userData, {
         withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -60,12 +60,12 @@ export const updateUserProfile = createAsyncThunk(
 
 export const updateConversionHistory = createAsyncThunk(
   'user/updateConversionHistory',
-  async (history: ConversionHistoryItem[], { rejectWithValue }) => {
+  async (history: ConversionHistoryItem, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post<{data: any}>(
+      console.log('Updating conversion history:', history);
+      const response = await axiosInstance.patch<{ data: any }>(
         `/users/update-history`,
-        history,
-        { withCredentials: true }
+        { history: history }
       );
       return response.data.data;
     } catch (error: any) {
@@ -93,18 +93,14 @@ const userSlice = createSlice({
     // Add a conversion to history (client-side only)
     addToHistory: (state, action: PayloadAction<ConversionHistoryItem>) => {
       state.history.unshift(action.payload); // Add to beginning of array
-      
+
       // Update the user's history as well if user exists
       if (state.user) {
         state.user.history = state.history;
       }
-      
-      // Optional: Sync with server (This would be better handled by a middleware)
-      updateConversionHistory(state.history);
     },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
-      state.history = action.payload.history || [];
     },
   },
   extraReducers: (builder) => {
@@ -144,7 +140,7 @@ const userSlice = createSlice({
     builder
       .addCase(updateConversionHistory.fulfilled, (state, action: PayloadAction<ConversionHistoryItem[]>) => {
         state.history = action.payload;
-        
+
         // Update user's history if user exists
         if (state.user) {
           state.user.history = action.payload;

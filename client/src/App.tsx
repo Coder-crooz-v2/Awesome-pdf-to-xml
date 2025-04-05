@@ -10,13 +10,21 @@ import { ThemeProvider } from "./providers/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./providers/ProtectedRoute";
+import { setUser } from "./redux/slices/userSlice";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     // Try to auto login the user on app load
-    dispatch(getCurrentUser());
+    dispatch(getCurrentUser())
+      .unwrap()
+      .then((userData) => {
+        dispatch(setUser(userData));
+      })
+      .catch((error) => {
+        console.error("Auto login failed:", error);
+      });
   }, [dispatch]);
 
   return (

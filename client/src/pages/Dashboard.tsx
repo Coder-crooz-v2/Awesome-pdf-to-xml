@@ -1,22 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
-import { 
+import {
   fetchUserDocuments,
-  uploadDocument, 
-  deleteDocument 
+  uploadDocument,
+  deleteDocument
 } from "@/redux/slices/documentSlice";
-import { addToHistory } from "@/redux/slices/userSlice";
+import { addToHistory, updateConversionHistory } from "@/redux/slices/userSlice";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Table, 
+import {
+  Table,
   TableBody,
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
@@ -27,15 +27,15 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import FileUploader from "@/components/dashboard/FileUploader";
 // import FileViewer from "@/components/dashboard/FileViewer";
 import { pdfToXml } from "@/lib/pdfConversion";
-import { 
-  ChevronDown, 
-  Download, 
-  File, 
-  FileText, 
-  Loader2, 
-  Trash2, 
-  Upload, 
-  XCircle 
+import {
+  ChevronDown,
+  Download,
+  File,
+  FileText,
+  Loader2,
+  Trash2,
+  Upload,
+  XCircle
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -85,41 +85,56 @@ const Dashboard = () => {
   });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<Document | null>(null);
-  
+
   const dispatch = useDispatch<AppDispatch>();
 
   const { documents, loading } = useSelector((state: RootState) => state.documents);
-  const { history } = useSelector((state: RootState) => state.user);
-  
+  const { user } = useSelector((state: RootState) => state.user);
+
   // Filter documents by type
   const pdfDocuments = documents.filter(doc => doc.type === "pdf");
   const xmlDocuments = documents.filter(doc => doc.type === "xml");
-  
+
   // Group history by date
-  const groupedHistory = history.reduce((groups: Record<string, ConversionHistoryItem[]>, item) => {
-    const date = format(new Date(item.date), "yyyy-MM-dd");
-    if (!groups[date]) {
-      groups[date] = [];
+  const groupedHistory = useMemo(() => {
+    // Check if history exists and is an array before using reduce
+    if (!user?.history || !Array.isArray(user.history)) {
+      return {};
     }
-    groups[date].push(item);
+
+    // First, create the grouped objects
+    const groups = user.history.reduce((groups: Record<string, ConversionHistoryItem[]>, item) => {
+      const date = format(new Date(item.date), "yyyy-MM-dd");
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(item);
+      return groups;
+    }, {});
+
+    // Then, sort items within each group by date (most recent first)
+    Object.keys(groups).forEach(date => {
+      groups[date].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    });
+
     return groups;
-  }, {});
-  
+  }, [user?.history]);
+
   useEffect(() => {
     dispatch(fetchUserDocuments());
   }, [dispatch]);
-  
+
   const handleFileSelect = (file: Document) => {
     setSelectedFile(file);
   };
-  
+
   const handleFileUpload = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
-    
+
     try {
       await dispatch(uploadDocument(formData)).unwrap();
-      toast.success("File Uploaded",{
+      toast.success("File Uploaded", {
         description: "Your file has been uploaded successfully.",
       });
     } catch (error) {
@@ -128,12 +143,12 @@ const Dashboard = () => {
       });
     }
   };
-  
+
   const handleDeleteFile = (file: Document) => {
     setFileToDelete(file);
     setDeleteDialogOpen(true);
   };
-  
+
   const confirmDelete = async () => {
     if (fileToDelete) {
       try {
@@ -153,7 +168,7 @@ const Dashboard = () => {
     setDeleteDialogOpen(false);
     setFileToDelete(null);
   };
-  
+
   const handleConvertPdf = async () => {
     if (!selectedFile || selectedFile.type !== "pdf") {
       toast("Conversion Error", {
@@ -161,20 +176,20 @@ const Dashboard = () => {
       });
       return;
     }
-    
+
     setConversion({
       inProgress: true,
       progress: 0,
       error: null,
       result: null
     });
-    
+
     try {
       // Download PDF file for conversion
       const response = await fetch(selectedFile.url);
       const pdfBlob = await response.blob();
       const pdfArrayBuffer = await pdfBlob.arrayBuffer();
-      
+
       // Execute conversion with progress updates
       const xmlContent = await pdfToXml(pdfArrayBuffer, (progress) => {
         setConversion(prev => ({
@@ -182,17 +197,17 @@ const Dashboard = () => {
           progress: Math.round(progress * 100)
         }));
       });
-      
+
       // Create a Blob from the XML content
       const xmlBlob = new Blob([xmlContent], { type: "application/xml" });
-      
+
       // Upload the converted XML
       const formData = new FormData();
-      
+
       formData.append("file", xmlBlob, `${selectedFile.originalName.replace(/\.pdf$/, "")}.xml`);
 
       const uploadResult = await dispatch(uploadDocument(formData)).unwrap();
-      
+
       // Add to conversion history
       const historyItem = {
         pdfName: selectedFile.originalName,
@@ -200,16 +215,17 @@ const Dashboard = () => {
         date: new Date().toISOString(),
         success: true
       };
-      
+
       dispatch(addToHistory(historyItem));
-      
+      dispatch(updateConversionHistory(historyItem));
+
       setConversion({
         inProgress: false,
         progress: 100,
         error: null,
         result: xmlContent
       });
-      
+
       toast("Conversion complete", {
         description: "PDF has been successfully converted to XML and uploaded.",
       });
@@ -221,18 +237,23 @@ const Dashboard = () => {
         error: error instanceof Error ? error.message : "Unknown error occurred",
         result: null
       });
-      
+      dispatch(updateConversionHistory({
+        pdfName: selectedFile.originalName,
+        xmlName: "Conversion Failed",
+        date: new Date().toISOString(),
+        success: false
+      }))
       toast.error("Conversion Failed", {
         description: "There was an error converting the PDF. You can try downloading the PDF and converting it locally.",
       });
     }
   };
-  
+
   const downloadFile = async (file: Document) => {
     try {
       const response = await axios.get(file.url, { responseType: 'blob' });
       const blob = new Blob([response.data as BlobPart]);
-      
+
       // Create download link
       const downloadUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -240,7 +261,7 @@ const Dashboard = () => {
       a.download = file.originalName;
       document.body.appendChild(a);
       a.click();
-      
+
       // Clean up
       URL.revokeObjectURL(downloadUrl);
       document.body.removeChild(a);
@@ -250,10 +271,10 @@ const Dashboard = () => {
       });
     }
   };
-  
+
   const downloadConvertedXml = () => {
     if (!conversion.result) return;
-    
+
     const blob = new Blob([conversion.result], { type: "application/xml" });
     const downloadUrl = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -261,32 +282,32 @@ const Dashboard = () => {
     a.download = `${selectedFile?.originalName.replace(/\.pdf$/, "")}.xml`;
     document.body.appendChild(a);
     a.click();
-    
+
     // Clean up
     URL.revokeObjectURL(downloadUrl);
     document.body.removeChild(a);
   };
-  
+
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
-  
+
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar 
-        isOpen={sidebarOpen} 
-        toggleSidebar={toggleSidebar} 
+      <Sidebar
+        isOpen={sidebarOpen}
+        toggleSidebar={toggleSidebar}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
-      
+
       <div className="flex-1 overflow-auto px-6">
         <div className="container py-6">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold">Dashboard</h1>
             <FileUploader onFileUpload={handleFileUpload} />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <Card>
               <CardHeader className="pb-2">
@@ -299,7 +320,7 @@ const Dashboard = () => {
                 <div className="text-2xl font-bold">{pdfDocuments.length}</div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle>XML Files</CardTitle>
@@ -311,23 +332,23 @@ const Dashboard = () => {
                 <div className="text-2xl font-bold">{xmlDocuments.length}</div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle>Conversions</CardTitle>
                 <CardDescription>
-                  {history.length} total conversions
+                  {user?.history?.length} total conversions
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{history.length}</div>
+                <div className="text-2xl font-bold">{user?.history?.length}</div>
               </CardContent>
             </Card>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
-              <Card className="h-full">
+              <Card className="md:h-full h-content">
                 <CardHeader>
                   <CardTitle>{activeTab === "pdfs" ? "PDF Files" : activeTab === "xmls" ? "XML Files" : "Conversion History"}</CardTitle>
                 </CardHeader>
@@ -338,7 +359,7 @@ const Dashboard = () => {
                       <TabsTrigger value="xmls">XMLs</TabsTrigger>
                       <TabsTrigger value="history">History</TabsTrigger>
                     </TabsList>
-                    
+
                     <TabsContent value="pdfs" className="space-y-4">
                       {loading ? (
                         <div className="flex justify-center p-4">
@@ -356,7 +377,7 @@ const Dashboard = () => {
                             </TableHeader>
                             <TableBody>
                               {pdfDocuments.map((doc) => (
-                                <TableRow 
+                                <TableRow
                                   key={doc._id}
                                   className={selectedFile?._id === doc._id ? "bg-muted" : ""}
                                   onClick={() => handleFileSelect(doc)}
@@ -372,8 +393,8 @@ const Dashboard = () => {
                                   </TableCell>
                                   <TableCell>
                                     <div className="flex items-center space-x-2">
-                                      <Button 
-                                        variant="ghost" 
+                                      <Button
+                                        variant="ghost"
                                         size="icon"
                                         onClick={(e) => {
                                           e.stopPropagation();
@@ -382,8 +403,8 @@ const Dashboard = () => {
                                       >
                                         <Download size={16} />
                                       </Button>
-                                      <Button 
-                                        variant="ghost" 
+                                      <Button
+                                        variant="ghost"
                                         size="icon"
                                         onClick={(e) => {
                                           e.stopPropagation();
@@ -409,7 +430,7 @@ const Dashboard = () => {
                         </div>
                       )}
                     </TabsContent>
-                    
+
                     <TabsContent value="xmls" className="space-y-4">
                       {loading ? (
                         <div className="flex justify-center p-4">
@@ -427,7 +448,7 @@ const Dashboard = () => {
                             </TableHeader>
                             <TableBody>
                               {xmlDocuments.map((doc) => (
-                                <TableRow 
+                                <TableRow
                                   key={doc._id}
                                   className={selectedFile?._id === doc._id ? "bg-muted" : ""}
                                   onClick={() => handleFileSelect(doc)}
@@ -443,8 +464,8 @@ const Dashboard = () => {
                                   </TableCell>
                                   <TableCell>
                                     <div className="flex items-center space-x-2">
-                                      <Button 
-                                        variant="ghost" 
+                                      <Button
+                                        variant="ghost"
                                         size="icon"
                                         onClick={(e) => {
                                           e.stopPropagation();
@@ -453,8 +474,8 @@ const Dashboard = () => {
                                       >
                                         <Download size={16} />
                                       </Button>
-                                      <Button 
-                                        variant="ghost" 
+                                      <Button
+                                        variant="ghost"
                                         size="icon"
                                         onClick={(e) => {
                                           e.stopPropagation();
@@ -480,37 +501,44 @@ const Dashboard = () => {
                         </div>
                       )}
                     </TabsContent>
-                    
+
                     <TabsContent value="history" className="space-y-4">
-                      {history.length > 0 ? (
+                      {(user?.history || []).length > 0 ? (
                         <ScrollArea className="h-[500px]">
-                          {Object.entries(groupedHistory).map(([date, items]) => (
-                            <Collapsible key={date} className="mb-4">
-                              <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted rounded-md">
-                                <span className="font-medium">
-                                  {format(new Date(date), "MMMM d, yyyy")}
-                                </span>
-                                <ChevronDown size={16} />
-                              </CollapsibleTrigger>
-                              <CollapsibleContent className="pl-4 mt-2 space-y-2">
-                                {items.map((item, index) => (
-                                  <div key={index} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
-                                    <div>
-                                      <p className="text-sm">
-                                        {format(new Date(item.date), "h:mm a")} - {item.pdfName} converted to XML
-                                      </p>
-                                      <p className="text-xs text-muted-foreground">
-                                        Result: {item.xmlName}
-                                      </p>
+                          {Object.entries(groupedHistory || {})
+                            // Sort dates from most recent to oldest
+                            .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
+                            .map(([date, items]) => (
+                              <Collapsible key={date} className="mb-4">
+                                <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted rounded-md">
+                                  <span className="font-medium">
+                                    {format(new Date(date), "MMMM d, yyyy")}
+                                  </span>
+                                  <ChevronDown size={16} />
+                                </CollapsibleTrigger>
+                                <CollapsibleContent className="pl-4 mt-2 space-y-2">
+                                  {/* Items within each date are already sorted */}
+                                  {items.map((item, index) => (
+                                    <div key={index} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
+                                      <div>
+                                        <p className="text-sm">
+                                          {item.success ?
+                                            format(new Date(item.date), "h:mm a") + '-' + item.pdfName + 'conversion failed' :
+                                            format(new Date(item.date), "h:mm a") + '-' + item.pdfName + 'converted to XML'
+                                          }
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                          Result: {item.xmlName}
+                                        </p>
+                                      </div>
+                                      <Badge variant={item.success ? "default" : "destructive"}>
+                                        {item.success ? "Success" : "Failed"}
+                                      </Badge>
                                     </div>
-                                    <Badge variant={item.success ? "default" : "destructive"}>
-                                      {item.success ? "Success" : "Failed"}
-                                    </Badge>
-                                  </div>
-                                ))}
-                              </CollapsibleContent>
-                            </Collapsible>
-                          ))}
+                                  ))}
+                                </CollapsibleContent>
+                              </Collapsible>
+                            ))}
                         </ScrollArea>
                       ) : (
                         <div className="text-center p-4">
@@ -526,7 +554,7 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </div>
-            
+
             <div className="lg:col-span-2">
               <Card className="h-full">
                 <CardHeader>
@@ -540,7 +568,7 @@ const Dashboard = () => {
                       </Badge>
                       <div className="space-x-2">
                         {selectedFile.type === "pdf" && (
-                          <Button 
+                          <Button
                             onClick={handleConvertPdf}
                             disabled={conversion.inProgress}
                           >
@@ -557,7 +585,7 @@ const Dashboard = () => {
                             )}
                           </Button>
                         )}
-                        <Button 
+                        <Button
                           variant="outline"
                           onClick={() => downloadFile(selectedFile)}
                         >
@@ -580,7 +608,7 @@ const Dashboard = () => {
                           <Progress value={conversion.progress} />
                         </div>
                       )}
-                      
+
                       {conversion.error && (
                         <div className="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-md p-4 mb-4">
                           <div className="flex items-start">
@@ -592,9 +620,9 @@ const Dashboard = () => {
                               <p className="text-sm text-red-700 dark:text-red-300 mt-1">
                                 {conversion.error}
                               </p>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
+                              <Button
+                                variant="outline"
+                                size="sm"
                                 className="mt-2"
                                 onClick={() => setConversion(prev => ({ ...prev, error: null }))}
                               >
@@ -604,7 +632,7 @@ const Dashboard = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       {conversion.result && selectedFile.type === "pdf" && (
                         <div className="bg-green-50 dark:bg-green-950/50 border border-green-200 dark:border-green-800 rounded-md p-4 mb-4">
                           <h3 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">
@@ -613,8 +641,8 @@ const Dashboard = () => {
                           <p className="text-sm text-green-700 dark:text-green-300 mb-2">
                             The conversion was successful and the XML file has been uploaded.
                           </p>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={downloadConvertedXml}
                           >
@@ -623,7 +651,7 @@ const Dashboard = () => {
                           </Button>
                         </div>
                       )}
-                      
+
                       <FileViewer file={selectedFile} />
                     </div>
                   ) : (
@@ -641,7 +669,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Delete confirmation dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

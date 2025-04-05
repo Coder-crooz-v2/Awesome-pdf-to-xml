@@ -297,11 +297,15 @@ const updateConversionHistory = asyncHandler(async(req, res) => {
         if (!history) {
             throw new ApiError(400, "History is required")
         }
+        const existingUser = await User.findById(req.user._id).select("history");
+        const existingHistory = existingUser.history || [];
+        const updatedHistory = [...existingHistory, history];
+
         const user = await User.findByIdAndUpdate(
             req.user._id,
             {
                 $set: {
-                    conversionHistory: history
+                    history: updatedHistory
                 }
             },
             { new: true }
