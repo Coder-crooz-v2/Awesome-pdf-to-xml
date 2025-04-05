@@ -58,20 +58,6 @@ export const updateUserProfile = createAsyncThunk(
   }
 );
 
-export const fetchConversionHistory = createAsyncThunk(
-  'user/fetchConversionHistory',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.get<{data: any}>(`/users/fetch-history`, {
-        withCredentials: true,
-      });
-      return response.data.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch conversion history');
-    }
-  }
-);
-
 export const updateConversionHistory = createAsyncThunk(
   'user/updateConversionHistory',
   async (history: ConversionHistoryItem[], { rejectWithValue }) => {
@@ -150,26 +136,6 @@ const userSlice = createSlice({
         state.history = action.payload.history || [];
       })
       .addCase(updateUserProfile.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
-
-    // Fetch conversion history
-    builder
-      .addCase(fetchConversionHistory.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchConversionHistory.fulfilled, (state, action: PayloadAction<ConversionHistoryItem[]>) => {
-        state.loading = false;
-        state.history = action.payload;
-        
-        // Update user's history if user exists
-        if (state.user) {
-          state.user.history = action.payload;
-        }
-      })
-      .addCase(fetchConversionHistory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
