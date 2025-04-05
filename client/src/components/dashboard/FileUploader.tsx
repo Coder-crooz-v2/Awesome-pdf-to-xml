@@ -28,7 +28,7 @@ const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       
-      // Check file type
+      
       if (!(selectedFile.type === "application/pdf" || 
             selectedFile.type === "application/xml" || 
             selectedFile.name.endsWith(".pdf") || 
@@ -39,7 +39,7 @@ const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
         return;
       }
       
-      // Check file size (10MB limit)
+      
       if (selectedFile.size > 10 * 1024 * 1024) {
         toast.error("File too large", {
           description: "File size should be less than 10MB.",
@@ -57,7 +57,7 @@ const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const droppedFile = e.dataTransfer.files[0];
       
-      // Check file type
+      
       if (!(droppedFile.type === "application/pdf" || 
             droppedFile.type === "application/xml" || 
             droppedFile.name.endsWith(".pdf") || 
@@ -68,7 +68,7 @@ const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
         return;
       }
       
-      // Check file size (10MB limit)
+      
       if (droppedFile.size > 10 * 1024 * 1024) {
         toast.error("File too large", {
           description: "File size should be less than 10MB.",
@@ -94,7 +94,7 @@ const FileUploader = ({ onFileUpload }: FileUploaderProps) => {
       setFile(null);
       setDialogOpen(false);
       
-      // Reset file input
+      
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }

@@ -5,28 +5,28 @@ import { Document } from "../models/document.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { v2 as cloudinary } from "cloudinary";
 
-// Upload a PDF file
+
 const uploadDocument = asyncHandler(async (req, res) => {
     if (!req.file) {
         throw new ApiError(400, "PDF file is required");
     }
 
     const pdfLocalPath = req.file.path;
-    // Validate PDF file
+    
     if (!req.file.mimetype || !(req.file.mimetype.includes('pdf') || req.file.mimetype.includes('xml'))) {
-        // Clean up the invalid file
+        
         throw new ApiError(400, "Only PDF or XML files are allowed");
     }
 
     try {
-        // Upload PDF to Cloudinary
+        
         const uploadedFile = await uploadOnCloudinary(pdfLocalPath);
 
         if (!uploadedFile) {
             throw new ApiError(500, "Error uploading PDF to cloudinary");
         }
 
-        // Create a new document in database
+        
         const document = await Document.create({
             owner: req.user._id,
             originalName: req.file.originalname,
@@ -41,7 +41,7 @@ const uploadDocument = asyncHandler(async (req, res) => {
     }
 });
 
-// // Get all documents for the current user
+
 const getUserDocuments = asyncHandler(async (req, res) => {
     try {
         const documents = await Document.find({ owner: req.user._id });
@@ -60,7 +60,7 @@ const getUserDocuments = asyncHandler(async (req, res) => {
     }
 });
 
-// // Delete a document
+
 const deleteDocument = asyncHandler(async (req, res) => {
     try {
         const document = await Document.findById(req.params.id);
@@ -69,12 +69,12 @@ const deleteDocument = asyncHandler(async (req, res) => {
             throw new ApiError(404, "Document not found");
         }
     
-        // Check if the document belongs to the current user
+        
         if (document.owner.toString() !== req.user._id.toString()) {
             throw new ApiError(403, "You don't have permission to delete this document");
         }
     
-        // TODO: Delete files from cloudinary
+        
         const publicId = document.url.split("/").pop().split(".")[0];
         if (document.type === 'pdf') {
             await cloudinary.uploader.destroy(publicId, (error, result) => {

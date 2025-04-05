@@ -30,7 +30,7 @@ interface RegisterData {
   avatar?: File;
 }
 
-// Async thunks
+
 export const registerUser = createAsyncThunk(
   'auth/register',
   async (userData: RegisterData, { rejectWithValue }) => {
@@ -63,7 +63,7 @@ export const loginUser = createAsyncThunk(
   async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post<{ data: any }>(`/users/login`, credentials, {
-        withCredentials: true, // Important for storing cookies
+        withCredentials: true, 
       });
       return response.data.data;
     } catch (error: any) {
@@ -95,7 +95,7 @@ export const getCurrentUser = createAsyncThunk(
       });
       return response.data.data;
     } catch (error: any) {
-      // Silent fail - just means user is not logged in
+      
       return rejectWithValue(null);
     }
   }
@@ -115,7 +115,7 @@ export const refreshAccessToken = createAsyncThunk(
   }
 );
 
-// Initial state
+
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
@@ -123,7 +123,7 @@ const initialState: AuthState = {
   error: null,
 };
 
-// Slice
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -133,7 +133,7 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Register
+    
     builder
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
@@ -141,14 +141,14 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state) => {
         state.loading = false;
-        // After registration, user still needs to login
+        
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
 
-    // Login
+    
     builder
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
@@ -164,7 +164,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Logout
+    
     builder
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
@@ -176,12 +176,12 @@ const authSlice = createSlice({
       })
       .addCase(logoutUser.rejected, (state) => {
         state.loading = false;
-        // Even if server-side logout fails, we'll still clear the user on client
+        
         state.isAuthenticated = false;
         state.user = null;
       });
 
-    // Get Current User
+    
     builder
       .addCase(getCurrentUser.pending, (state) => {
         state.loading = true;
@@ -198,7 +198,7 @@ const authSlice = createSlice({
         state.user = null;
       });
 
-    // Refresh Token
+    
     builder
       .addCase(refreshAccessToken.fulfilled, (state) => {
         state.isAuthenticated = true;

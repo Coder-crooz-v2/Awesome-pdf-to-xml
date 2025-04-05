@@ -35,7 +35,7 @@ const FileViewer = ({ file }: FileViewerProps) => {
       fetchXmlContent();
     }
 
-    // Reset states when file changes
+    
     return () => {
       setNumPages(null);
       setXmlContent(null);
@@ -293,13 +293,13 @@ const FileViewer = ({ file }: FileViewerProps) => {
   );
 };
 
-// Helper function to format XML as HTML
+
 function formatXmlAsHtml(xmlString: string): string {
   try {
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlString, "text/xml");
 
-    // Simple transformation - in a real app, you'd implement a more sophisticated renderer
+    
     const html = transformXmlToHtml(xmlDoc.documentElement);
     return html;
   } catch (error) {
@@ -311,7 +311,7 @@ function formatXmlAsHtml(xmlString: string): string {
 function transformXmlToHtml(node: Element): string {
   let html = '';
 
-  // Process element based on tag name
+  
   switch (node.nodeName.toLowerCase()) {
     case 'document':
       html += `<div class="document">`;
@@ -352,11 +352,11 @@ function transformXmlToHtml(node: Element): string {
       html += `<div class="${node.nodeName.toLowerCase()}">`;
   }
 
-  // Add text content if this is a text node
+  
   if (node.childNodes.length === 1 && node.childNodes[0].nodeType === Node.TEXT_NODE) {
     html += node.textContent;
   } else {
-    // Process child nodes recursively
+    
     for (let i = 0; i < node.childNodes.length; i++) {
       const child = node.childNodes[i];
       if (child.nodeType === Node.ELEMENT_NODE) {
@@ -370,7 +370,7 @@ function transformXmlToHtml(node: Element): string {
     }
   }
 
-  // Close the element
+  
   switch (node.nodeName.toLowerCase()) {
     case 'document':
     case 'page':

@@ -30,16 +30,16 @@ const SignupPage = () => {
     const { isAuthenticated, loading, error } = useSelector((state: RootState) => state.auth);
 
     useEffect(() => {
-        // Clear any existing errors when component mounts
+        
         dispatch(clearError());
 
-        // Redirect if already authenticated
+        
         if (isAuthenticated) {
             navigate("/dashboard");
         }
     }, [dispatch, isAuthenticated, navigate]);
 
-    // Check if passwords match
+    
     useEffect(() => {
         if (formData.password && formData.confirmPassword) {
             setPasswordsMatch(formData.password === formData.confirmPassword);
@@ -57,7 +57,7 @@ const SignupPage = () => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
 
-            // Validate file type
+            
             if (!file.type.match('image.*')) {
                 toast.error("Invalid file type", {
                     description: "Please upload an image file",
@@ -65,7 +65,7 @@ const SignupPage = () => {
                 return;
             }
 
-            // Validate file size (max 1MB)
+            
             if (file.size > 1024 * 1024) {
                 toast.error("File too large", {
                     description: "Avatar image must be less than 1MB",
@@ -85,7 +85,7 @@ const SignupPage = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validate passwords match
+        
         if (formData.password !== formData.confirmPassword) {
             toast.error("Passwords don't match", {
                 description: "Please ensure both passwords match",
@@ -93,7 +93,7 @@ const SignupPage = () => {
             return;
         }
 
-        // Create registration data
+        
         const registrationData = {
             fullName: formData.fullName,
             email: formData.email,

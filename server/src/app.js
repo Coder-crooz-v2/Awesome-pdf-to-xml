@@ -9,13 +9,13 @@ dotenv.config({
 const app = express()
 
 const allowedOrigins = [
-process.env.CORS_ORIGIN,          // Production URL
+process.env.CORS_ORIGIN,          
 "http://localhost:3000"                              // Local development URL
 ]
 
 app.use(cors({
     origin: function(origin, callback) {
-        // Allow requests with no origin (like mobile apps, curl, postman)
+        
         if (!origin) return callback(null, true);
         
         if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
@@ -34,11 +34,11 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser())
 
-//routes import
+
 import userRouter from './routes/user.routes.js'
 import documentRouter from './routes/document.routes.js'
 
-//routes declaration
+
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/documents", documentRouter)
 

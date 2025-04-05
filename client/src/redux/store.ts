@@ -11,7 +11,7 @@ export const store = configureStore({
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // Allows non-serializable values in actions (like File objects)
+      serializableCheck: false, 
     }),
   devTools: process.env.NODE_ENV !== 'production',
 });

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { axiosInstance } from '@/lib/axios';
-// Types
+
 export interface Document {
   _id: string;
   originalName: string;
@@ -16,7 +16,7 @@ interface DocumentState {
   error: string | null;
 }
 
-// Async Thunks
+
 export const fetchUserDocuments = createAsyncThunk(
   'documents/fetchUserDocuments',
   async (_, { rejectWithValue }) => {
@@ -69,14 +69,14 @@ export const clearDocuments = createAsyncThunk(
   }
 );
 
-// Initial state
+
 const initialState: DocumentState = {
   documents: [],
   loading: false,
   error: null,
 };
 
-// Slice
+
 const documentSlice = createSlice({
   name: 'documents',
   initialState,
@@ -89,7 +89,7 @@ const documentSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    // Fetch documents
+    
     builder
       .addCase(fetchUserDocuments.pending, (state) => {
         state.loading = true;
@@ -104,7 +104,7 @@ const documentSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Upload document
+    
     builder
       .addCase(uploadDocument.pending, (state) => {
         state.loading = true;
@@ -119,7 +119,7 @@ const documentSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Delete document
+    
     builder
       .addCase(deleteDocument.pending, (state) => {
         state.loading = true;

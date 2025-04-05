@@ -50,17 +50,17 @@ const Sidebar = ({ isOpen, toggleSidebar, activeTab, setActiveTab }: SidebarProp
 
   const handleLogout = async () => {
     try {
-      // Call the logout API
+      
       await dispatch(logoutUser()).unwrap();
       
       dispatch(resetDocuments());
-      // Clear any additional storage if needed
+      
       localStorage.removeItem("accessToken");
       
       toast.success("Logout successful");
       
-      // Force navigation to login page
-      // Add a small delay to ensure state is updated before navigation
+      
+      
       setTimeout(() => {
         navigate("/login", { replace: true });
       }, 100);

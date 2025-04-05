@@ -16,7 +16,7 @@ function App() {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    // Try to auto login the user on app load
+    
     dispatch(getCurrentUser())
       .unwrap()
       .then((userData) => {

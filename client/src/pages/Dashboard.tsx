@@ -25,7 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import Sidebar from "@/components/dashboard/Sidebar";
 import FileUploader from "@/components/dashboard/FileUploader";
-// import FileViewer from "@/components/dashboard/FileViewer";
+
 import { pdfToXml } from "@/lib/pdfConversion";
 import {
   ChevronDown,
@@ -91,18 +91,18 @@ const Dashboard = () => {
   const { documents, loading } = useSelector((state: RootState) => state.documents);
   const { user } = useSelector((state: RootState) => state.user);
 
-  // Filter documents by type
+  
   const pdfDocuments = documents.filter(doc => doc.type === "pdf");
   const xmlDocuments = documents.filter(doc => doc.type === "xml");
 
-  // Group history by date
+  
   const groupedHistory = useMemo(() => {
-    // Check if history exists and is an array before using reduce
+    
     if (!user?.history || !Array.isArray(user.history)) {
       return {};
     }
 
-    // First, create the grouped objects
+    
     const groups = user.history.reduce((groups: Record<string, ConversionHistoryItem[]>, item) => {
       const date = format(new Date(item.date), "yyyy-MM-dd");
       if (!groups[date]) {
@@ -112,7 +112,7 @@ const Dashboard = () => {
       return groups;
     }, {});
 
-    // Then, sort items within each group by date (most recent first)
+    
     Object.keys(groups).forEach(date => {
       groups[date].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     });
@@ -185,12 +185,12 @@ const Dashboard = () => {
     });
 
     try {
-      // Download PDF file for conversion
+      
       const response = await fetch(selectedFile.url);
       const pdfBlob = await response.blob();
       const pdfArrayBuffer = await pdfBlob.arrayBuffer();
 
-      // Execute conversion with progress updates
+      
       const xmlContent = await pdfToXml(pdfArrayBuffer, (progress) => {
         setConversion(prev => ({
           ...prev,
@@ -198,17 +198,17 @@ const Dashboard = () => {
         }));
       });
 
-      // Create a Blob from the XML content
+      
       const xmlBlob = new Blob([xmlContent], { type: "application/xml" });
 
-      // Upload the converted XML
+      
       const formData = new FormData();
 
       formData.append("file", xmlBlob, `${selectedFile.originalName.replace(/\.pdf$/, "")}.xml`);
 
       const uploadResult = await dispatch(uploadDocument(formData)).unwrap();
 
-      // Add to conversion history
+      
       const historyItem = {
         pdfName: selectedFile.originalName,
         xmlName: uploadResult.originalName,
@@ -254,7 +254,7 @@ const Dashboard = () => {
       const response = await axios.get(file.url, { responseType: 'blob' });
       const blob = new Blob([response.data as BlobPart]);
 
-      // Create download link
+      
       const downloadUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = downloadUrl;
@@ -262,7 +262,7 @@ const Dashboard = () => {
       document.body.appendChild(a);
       a.click();
 
-      // Clean up
+      
       URL.revokeObjectURL(downloadUrl);
       document.body.removeChild(a);
     } catch (error) {
@@ -283,7 +283,7 @@ const Dashboard = () => {
     document.body.appendChild(a);
     a.click();
 
-    // Clean up
+    
     URL.revokeObjectURL(downloadUrl);
     document.body.removeChild(a);
   };
@@ -506,7 +506,7 @@ const Dashboard = () => {
                       {(user?.history || []).length > 0 ? (
                         <ScrollArea className="h-[500px]">
                           {Object.entries(groupedHistory || {})
-                            // Sort dates from most recent to oldest
+                            
                             .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
                             .map(([date, items]) => (
                               <Collapsible key={date} className="mb-4">

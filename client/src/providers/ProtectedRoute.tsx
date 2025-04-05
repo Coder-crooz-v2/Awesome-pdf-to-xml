@@ -11,12 +11,12 @@ const ProtectedRoute = () => {
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      // Redirect to login page but preserve the intended destination
+      
       navigate('/login', { state: { from: location.pathname }, replace: true });
     }
   }, [isAuthenticated, loading, navigate, location]);
 
-  // Show loading indicator while checking authentication
+  
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -26,7 +26,7 @@ const ProtectedRoute = () => {
     );
   }
 
-  // Only render the child components when authenticated
+  
   return isAuthenticated ? <Outlet /> : null;
 };
 

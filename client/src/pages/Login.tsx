@@ -24,10 +24,10 @@ const LoginPage = () => {
   const { isAuthenticated, loading, error } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    // Clear any existing errors when component mounts
+    
     dispatch(clearError());
     
-    // Redirect if already authenticated
+    
     if (isAuthenticated) {
       navigate("/dashboard");
     }
@@ -41,7 +41,7 @@ const LoginPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Determine if using email or username for login
+    
     const credentials = {
       [activeTab]: loginData.identifier,
       password: loginData.password,

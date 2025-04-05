@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { axiosInstance } from '@/lib/axios';
 
 
-// Types
+
 export interface ConversionHistoryItem {
   pdfName: string;
   xmlName: string;
@@ -26,7 +26,7 @@ interface UserState {
   error: string | null;
 }
 
-// Async Thunks
+
 export const fetchUserProfile = createAsyncThunk(
   'user/fetchUserProfile',
   async (_, { rejectWithValue }) => {
@@ -74,7 +74,7 @@ export const updateConversionHistory = createAsyncThunk(
   }
 );
 
-// Initial state
+
 const initialState: UserState = {
   user: null,
   history: [],
@@ -82,7 +82,7 @@ const initialState: UserState = {
   error: null,
 };
 
-// Slice
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -90,11 +90,11 @@ const userSlice = createSlice({
     clearUserError: (state) => {
       state.error = null;
     },
-    // Add a conversion to history (client-side only)
+    
     addToHistory: (state, action: PayloadAction<ConversionHistoryItem>) => {
-      state.history.unshift(action.payload); // Add to beginning of array
+      state.history.unshift(action.payload); 
 
-      // Update the user's history as well if user exists
+      
       if (state.user) {
         state.user.history = state.history;
       }
@@ -104,7 +104,7 @@ const userSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Fetch user profile
+    
     builder
       .addCase(fetchUserProfile.pending, (state) => {
         state.loading = true;
@@ -120,7 +120,7 @@ const userSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Update user profile
+    
     builder
       .addCase(updateUserProfile.pending, (state) => {
         state.loading = true;
@@ -136,12 +136,12 @@ const userSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Update conversion history
+    
     builder
       .addCase(updateConversionHistory.fulfilled, (state, action: PayloadAction<ConversionHistoryItem[]>) => {
         state.history = action.payload;
 
-        // Update user's history if user exists
+        
         if (state.user) {
           state.user.history = action.payload;
         }

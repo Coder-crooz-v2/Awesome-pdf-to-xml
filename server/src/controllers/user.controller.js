@@ -27,7 +27,7 @@ const registerUser = asyncHandler( async (req, res) => {
 
 
     const {fullName, email, username, password } = req.body
-    //console.log("email: ", email);
+    
 
     if (
         [fullName, email, username, password].some((field) => field?.trim() === "")
@@ -43,9 +43,9 @@ const registerUser = asyncHandler( async (req, res) => {
         throw new ApiError(409, "User with email or username already exists")
     }
 
-    let avatarUrl = "#"; // Add a default avatar URL
+    let avatarUrl = "#"; 
 
-    // Check if avatar was uploaded (now optional)
+    
     if (req.files && req.files.avatar && req.files.avatar[0]) {
         const avatarLocalPath = req.files.avatar[0].path;
         const avatar = await uploadOnCloudinary(avatarLocalPath);
@@ -133,7 +133,7 @@ const logoutUser = asyncHandler(async(req, res) => {
         req.user._id,
         {
             $unset: {
-                refreshToken: 1 // this removes the field from document
+                refreshToken: 1 
             }
         },
         {
@@ -266,7 +266,7 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
         throw new ApiError(400, "Avatar file is missing")
     }
 
-    //TODO: delete old image - assignment
+    
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
 
