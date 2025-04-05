@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Upload } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const SignupPage = () => {
     const [formData, setFormData] = useState({
@@ -58,7 +59,7 @@ const SignupPage = () => {
 
             // Validate file type
             if (!file.type.match('image.*')) {
-                toast.error("Invalid file type",{
+                toast.error("Invalid file type", {
                     description: "Please upload an image file",
                 });
                 return;
@@ -199,13 +200,10 @@ const SignupPage = () => {
                                 <Label htmlFor="avatar">Profile Picture (Optional)</Label>
                                 <div className="flex items-center space-x-4">
                                     {avatarPreview && (
-                                        <div className="w-16 h-16 rounded-full overflow-hidden">
-                                            <img
-                                                src={avatarPreview}
-                                                alt="Avatar preview"
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
+                                        <Avatar className="h-16 w-16">
+                                            <AvatarImage src={avatarPreview} alt="Avatar preview" />
+                                            <AvatarFallback>{formData.fullName.charAt(0)}</AvatarFallback>
+                                        </Avatar>
                                     )}
                                     <Label
                                         htmlFor="avatar-upload"
