@@ -48,11 +48,6 @@ CLOUDINARY_API_SECRET=your_secret
 NODE_ENV=development
 ```
 
-Create a `.env` file in the client directory:
-```
-VITE_API_URL=http://localhost:8000/api/v1
-```
-
 **4. Start the application**
 
 Start the server:
@@ -95,7 +90,6 @@ This project implements the **Advanced Challenge Level**, including:
 - Cloud-based document storage with Cloudinary
 - Complete document management system (upload, view, convert, download)
 - Responsive design with dark/light mode toggle
-- Batch processing capabilities for multiple documents
 - Conversion history tracking
 - Advanced PDF text extraction with positional information
 
