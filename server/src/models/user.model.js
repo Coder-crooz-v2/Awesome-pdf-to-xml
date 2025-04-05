@@ -30,8 +30,23 @@ const userSchema = new Schema(
         },
         history: [
             {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "History"
+                pdfName: {
+                    type: String,
+                    required: true
+                },
+                xmlName: {
+                    type: String,
+                    required: true
+                },
+                date: {
+                    type: String,
+                    required: true,
+                    default: Date()
+                },
+                success: {
+                    type: Boolean,
+                    required: true
+                },
             }
         ],
         password: {

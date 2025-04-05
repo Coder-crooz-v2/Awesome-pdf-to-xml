@@ -224,7 +224,6 @@ const changeCurrentPassword = asyncHandler(async(req, res) => {
     .json(new ApiResponse(200, {}, "Password changed successfully"))
 })
 
-
 const getCurrentUser = asyncHandler(async(req, res) => {
     return res
     .status(200)
@@ -292,6 +291,48 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
     )
 })
 
+const updateConversionHistory = asyncHandler(async(req, res) => {
+    try {
+        const { history } = req.body
+        if (!history) {
+            throw new ApiError(400, "History is required")
+        }
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $set: {
+                    conversionHistory: history
+                }
+            },
+            { new: true }
+        ).select("-password")
+
+        if (!user) {
+            throw new ApiError(404, "User not found")
+        }
+        
+        return res.status(200).json(
+            new ApiResponse(200, user, "Conversion history updated successfully")
+        )
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while updating conversion history: " + error)
+    }
+})
+
+const fetchConversionHistory = asyncHandler(async(req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select("-password")
+        if (!user) {
+            throw new ApiError(404, "User not found")
+        }
+        
+        return res.status(200).json(
+            new ApiResponse(200, user.history, "Conversion history fetched successfully")
+        )
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while fetching conversion history: " + error)
+    }
+})
 
 export {
     registerUser,
@@ -301,5 +342,7 @@ export {
     changeCurrentPassword,
     getCurrentUser,
     updateAccountDetails,
-    updateUserAvatar
+    updateUserAvatar,
+    updateConversionHistory,
+    fetchConversionHistory
 }

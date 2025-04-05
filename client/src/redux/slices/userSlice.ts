@@ -31,7 +31,7 @@ export const fetchUserProfile = createAsyncThunk(
   'user/fetchUserProfile',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get<{data: any}>(`/users/profile`, {
+      const response = await axiosInstance.get<{data: any}>(`/users/current-user`, {
         withCredentials: true,
       });
       return response.data.data;
@@ -45,7 +45,7 @@ export const updateUserProfile = createAsyncThunk(
   'user/updateUserProfile',
   async (userData: FormData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.patch<{data: any}>(`/users/profile`, userData, {
+      const response = await axiosInstance.patch<{data: any}>(`/users/update-account`, userData, {
         withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -62,7 +62,7 @@ export const fetchConversionHistory = createAsyncThunk(
   'user/fetchConversionHistory',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get<{data: any}>(`/users/history`, {
+      const response = await axiosInstance.get<{data: any}>(`/users/fetch-history`, {
         withCredentials: true,
       });
       return response.data.data;
@@ -77,8 +77,8 @@ export const updateConversionHistory = createAsyncThunk(
   async (history: ConversionHistoryItem[], { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post<{data: any}>(
-        `/users/history`,
-        { history },
+        `/users/update-history`,
+        history,
         { withCredentials: true }
       );
       return response.data.data;
