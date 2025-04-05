@@ -31,7 +31,7 @@ const uploadDocument = asyncHandler(async (req, res) => {
             owner: req.user._id,
             originalName: req.file.originalname,
             type: req.file.mimetype.includes('pdf') ? 'pdf' : 'xml',
-            url: uploadedFile.url
+            url: uploadedFile.secure_url
         });
         return res.status(201).json(
             new ApiResponse(201, document, "File uploaded successfully")
