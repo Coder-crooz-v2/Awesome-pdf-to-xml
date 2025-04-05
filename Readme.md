@@ -90,7 +90,6 @@ This project implements the **Advanced Challenge Level**, including:
 - Cloud-based document storage with Cloudinary
 - Complete document management system (upload, view, convert, download)
 - Responsive design with dark/light mode toggle
-- Batch processing capabilities for multiple documents
 - Conversion history tracking
 - Advanced PDF text extraction with positional information
 
