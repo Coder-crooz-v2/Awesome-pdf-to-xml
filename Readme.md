@@ -48,11 +48,6 @@ CLOUDINARY_API_SECRET=your_secret
 NODE_ENV=development
 ```
 
-Create a `.env` file in the client directory:
-```
-VITE_API_URL=http://localhost:8000/api/v1
-```
-
 **4. Start the application**
 
 Start the server:
