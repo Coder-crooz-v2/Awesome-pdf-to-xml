@@ -523,8 +523,8 @@ const Dashboard = () => {
                                       <div>
                                         <p className="text-sm">
                                           {item.success ?
-                                            format(new Date(item.date), "h:mm a") + '-' + item.pdfName + 'conversion failed' :
-                                            format(new Date(item.date), "h:mm a") + '-' + item.pdfName + 'converted to XML'
+                                            format(new Date(item.date), "h:mm a") + '-' + item.pdfName + ' converted to XML' :
+                                            format(new Date(item.date), "h:mm a") + '-' + item.pdfName + ' conversion failed'
                                           }
                                         </p>
                                         <p className="text-xs text-muted-foreground">
