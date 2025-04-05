@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "@/theme/ModeToggle";
 import { toast } from "sonner";
 import { logoutUser } from "@/redux/slices/authSlice";
+import { resetDocuments } from "@/redux/slices/documentSlice";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -52,6 +53,7 @@ const Sidebar = ({ isOpen, toggleSidebar, activeTab, setActiveTab }: SidebarProp
       // Call the logout API
       await dispatch(logoutUser()).unwrap();
       
+      dispatch(resetDocuments());
       // Clear any additional storage if needed
       localStorage.removeItem("accessToken");
       

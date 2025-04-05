@@ -62,6 +62,13 @@ export const deleteDocument = createAsyncThunk(
   }
 );
 
+export const clearDocuments = createAsyncThunk(
+  'documents/clearDocuments',
+  async () => {
+    return [];
+  }
+);
+
 // Initial state
 const initialState: DocumentState = {
   documents: [],
@@ -77,6 +84,9 @@ const documentSlice = createSlice({
     clearDocumentError: (state) => {
       state.error = null;
     },
+    resetDocuments: (state) => {
+      state.documents = [];
+    }
   },
   extraReducers: (builder) => {
     // Fetch documents
@@ -123,8 +133,13 @@ const documentSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       });
+
+    builder
+      .addCase(clearDocuments.fulfilled, (state) => {
+        state.documents = [];
+      })
   },
 });
 
-export const { clearDocumentError } = documentSlice.actions;
+export const { clearDocumentError, resetDocuments } = documentSlice.actions;
 export default documentSlice.reducer;

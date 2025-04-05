@@ -76,14 +76,11 @@ const deleteDocument = asyncHandler(async (req, res) => {
     
         // TODO: Delete files from cloudinary
         const publicId = document.url.split("/").pop().split(".")[0];
-        console.log("Public ID:", publicId);
         if (document.type === 'pdf') {
             await cloudinary.uploader.destroy(publicId, (error, result) => {
                 if (error) {
                     console.error("Error deleting PDF from Cloudinary:", error);
                     throw new ApiError(500, "Error deleting PDF from Cloudinary");
-                } else {
-                    console.log("PDF deleted from Cloudinary:", result);
                 }
             });
         } else if (document.type === 'xml') {
